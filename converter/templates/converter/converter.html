@@ -1,0 +1,80 @@
+{% extends 'converter/base.html' %}
+
+{% block title %}Convert Currency{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Currency Converter</h3>
+            </div>
+            <div class="card-body">
+                <form id="converter-form">
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount</label>
+                        <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="from_currency" class="form-label">From Currency</label>
+                        <select class="form-select" id="from_currency" name="from_currency" required>
+                            <option value="">Select currency</option>
+                            {% for currency in currencies %}
+                                <option value="{{ currency.id }}">{{ currency.code }} - {{ currency.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="to_currency" class="form-label">To Currency</label>
+                        <select class="form-select" id="to_currency" name="to_currency" required>
+                            <option value="">Select currency</option>
+                            {% for currency in currencies %}
+                                <option value="{{ currency.id }}">{{ currency.code }} - {{ currency.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Convert</button>
+                </form>
+
+                <div id="result" class="mt-4" style="display: none;">
+                    <h4>Result</h4>
+                    <p>Converted Amount: <span id="converted-amount"></span></p>
+                    <p>Exchange Rate: <span id="exchange-rate"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('converter-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('{% url "convert_currency" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+        } else {
+            document.getElementById('converted-amount').textContent = data.converted_amount;
+            document.getElementById('exchange-rate').textContent = data.rate;
+            document.getElementById('result').style.display = 'block';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred during conversion');
+    });
+});
+</script>
+{% endblock %} 
