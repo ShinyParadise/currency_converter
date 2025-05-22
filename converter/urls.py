@@ -8,4 +8,4 @@ urlpatterns = [
     path('rates/', views.exchange_rates, name='exchange_rates'),
     path('update-rate/', views.update_exchange_rate, name='update_exchange_rate'),
     path('history/', views.conversion_history, name='conversion_history'),
-] 
+]

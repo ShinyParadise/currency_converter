@@ -32,4 +32,4 @@ class ConversionHistory(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.amount} {self.from_currency.code} to {self.converted_amount} {self.to_currency.code}" 
+        return f"{self.amount} {self.from_currency.code} to {self.converted_amount} {self.to_currency.code}"

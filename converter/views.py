@@ -34,7 +34,6 @@ def convert_currency(request):
         from_currency = Currency.objects.get(id=from_currency_id)
         to_currency = Currency.objects.get(id=to_currency_id)
 
-        # Try to get user-specific rate first, then fall back to global rate
         try:
             rate = ExchangeRate.objects.get(
                 from_currency=from_currency,
@@ -53,7 +52,6 @@ def convert_currency(request):
 
         converted_amount = amount * rate
 
-        # Save conversion history
         ConversionHistory.objects.create(
             user=request.user,
             from_currency=from_currency,
@@ -73,7 +71,8 @@ def convert_currency(request):
 @login_required
 def exchange_rates(request):
     rates = ExchangeRate.objects.filter(user=request.user) | ExchangeRate.objects.filter(user=None)
-    return render(request, 'converter/exchange_rates.html', {'rates': rates})
+    currencies = Currency.objects.all()
+    return render(request, 'converter/exchange_rates.html', {'rates': rates, 'currencies': currencies})
 
 @login_required
 @require_POST
@@ -100,4 +99,4 @@ def update_exchange_rate(request):
 @login_required
 def conversion_history(request):
     history = ConversionHistory.objects.filter(user=request.user).order_by('-timestamp')
-    return render(request, 'converter/history.html', {'history': history}) 
+    return render(request, 'converter/history.html', {'history': history})

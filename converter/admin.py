@@ -16,4 +16,4 @@ class ExchangeRateAdmin(admin.ModelAdmin):
 class ConversionHistoryAdmin(admin.ModelAdmin):
     list_display = ('user', 'from_currency', 'to_currency', 'amount', 'converted_amount', 'timestamp')
     list_filter = ('user', 'timestamp')
-    search_fields = ('user__username', 'from_currency__code', 'to_currency__code') 
+    search_fields = ('user__username', 'from_currency__code', 'to_currency__code')
