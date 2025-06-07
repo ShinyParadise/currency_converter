@@ -1,0 +1,79 @@
+{% extends 'converter/base.html' %}
+
+{% block title %}Конвертировать валюту{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Конвертер валют</h3>
+            </div>
+            <div class="card-body">
+                <form id="converter-form">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Сумма</label>
+                        <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="from_currency" class="form-label">Из валюты</label>
+                        <select class="form-select" id="from_currency" name="from_currency" required>
+                            <option value="">Выберите валюту</option>
+                            {% for currency in currencies %}
+                                <option value="{{ currency.id }}">{{ currency.code }} - {{ currency.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="to_currency" class="form-label">В валюту</label>
+                        <select class="form-select" id="to_currency" name="to_currency" required>
+                            <option value="">Выберите валюту</option>
+                            {% for currency in currencies %}
+                                <option value="{{ currency.id }}">{{ currency.code }} - {{ currency.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Конвертировать</button>
+                </form>
+
+                <div id="result" class="mt-4" style="display: none;">
+                    <h4>Результат</h4>
+                    <p>Сконвертированная сумма: <span id="converted-amount"></span></p>
+                    <p>Обменный курс: <span id="exchange-rate"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('converter-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('{% url "convert_currency" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {}
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert('Ошибка: ' + data.error);
+        } else {
+            document.getElementById('converted-amount').textContent = data.converted_amount;
+            document.getElementById('exchange-rate').textContent = data.rate;
+            document.getElementById('result').style.display = 'block';
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка во время конвертации');
+    });
+});
+</script>
+{% endblock %}
